@@ -84,11 +84,11 @@ static mp_obj_t i80bus_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     } else if (mp_obj_is_type(data, &mp_type_list)) {
         mp_obj_list_get(data, &data_pins_len, &data_pins);
     } else {
-        mp_raise_ValueError("I80Bus:  data must be a tuple or list");
+        mp_raise_ValueError(MP_ERROR_TEXT("I80Bus:  data must be a tuple or list"));
     }
 
     if (data_pins_len != 8 && data_pins_len != 16) {
-        mp_raise_ValueError("I80Bus: data bus width must be 8 or 16");
+        mp_raise_ValueError(MP_ERROR_TEXT("I80Bus: data bus width must be 8 or 16"));
     }
 
     esp_lcd_i80_bus_config_t bus_config = {
@@ -109,14 +109,14 @@ static mp_obj_t i80bus_make_new(const mp_obj_type_t *type, size_t n_args, size_t
         if (mp_obj_is_int(data_pins[i])) {
             bus_config.data_gpio_nums[i] = mp_obj_get_int(data_pins[i]);
         } else {
-            mp_raise_ValueError("I80Bus:  data pins must be integers");
+            mp_raise_ValueError(MP_ERROR_TEXT("I80Bus:  data pins must be integers"));
         }
     }
 
     esp_lcd_i80_bus_handle_t bus_handle = NULL;
     ret = esp_lcd_new_i80_bus(&bus_config, &bus_handle);
     if (ret != ESP_OK) {
-        mp_raise_msg(&mp_type_OSError, "Failed to create I80Bus.  You must hard reset the board to release the bus.");
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to create I80Bus.  You must hard reset the board to release the bus."));
     }
 
     esp_lcd_panel_io_i80_config_t io_config = {
@@ -145,7 +145,7 @@ static mp_obj_t i80bus_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     };
     ret = esp_lcd_new_panel_io_i80(bus_handle, &io_config, &self->io_handle);
     if (ret != ESP_OK) {
-        mp_raise_msg(&mp_type_OSError, "Failed to create I80 panel IO");
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to create I80 panel IO"));
     }
 
     return MP_OBJ_FROM_PTR(self);

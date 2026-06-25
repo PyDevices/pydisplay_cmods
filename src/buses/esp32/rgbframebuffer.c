@@ -112,7 +112,7 @@ static mp_obj_t rgbframebuffer_make_new(const mp_obj_type_t *type, size_t n_args
     mp_obj_tuple_t *green = MP_OBJ_TO_PTR(args[ARG_green].u_obj);
     mp_obj_tuple_t *red = MP_OBJ_TO_PTR(args[ARG_red].u_obj);
     if (blue->len != 5 || green->len != 6 || red->len != 5) {
-        mp_raise_ValueError("Expected blue, green, and red to have lengths 5, 6, and 5 respectively");
+        mp_raise_ValueError(MP_ERROR_TEXT("Expected blue, green, and red to have lengths 5, 6, and 5 respectively"));
     }
 
     int idx = 0;
@@ -131,29 +131,29 @@ static mp_obj_t rgbframebuffer_make_new(const mp_obj_type_t *type, size_t n_args
 
     ret = esp_lcd_new_rgb_panel(&panel_config, &self->panel_handle);
     if (ret != 0) {
-        mp_raise_msg(&mp_type_RuntimeError, "Failed to initialize RGB LCD panel");
+        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("Failed to initialize RGB LCD panel"));
     }
 
     ret = esp_lcd_panel_reset(self->panel_handle);
     if (ret != 0) {
-        mp_raise_msg(&mp_type_RuntimeError, "Failed to reset RGB LCD panel");
+        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("Failed to reset RGB LCD panel"));
     }
 
     ret = esp_lcd_panel_init(self->panel_handle);
     if (ret != 0) {
-        mp_raise_msg(&mp_type_RuntimeError, "Failed to initialize RGB LCD panel");
+        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("Failed to initialize RGB LCD panel"));
     }
 
     uint16_t color = 0xffff;
     ret = esp_lcd_panel_draw_bitmap(self->panel_handle, 0, 0, 1, 1, &color);
     if (ret != 0) {
-        mp_raise_msg(&mp_type_RuntimeError, "Failed to draw bitmap on RGB LCD panel");
+        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("Failed to draw bitmap on RGB LCD panel"));
     }
 
     void *buf;
     ret = esp_lcd_rgb_panel_get_frame_buffer(self->panel_handle, 1, &buf);
     if (ret != 0) {
-        mp_raise_msg(&mp_type_RuntimeError, "Failed to get framebuffer from RGB LCD panel");
+        mp_raise_msg(&mp_type_RuntimeError, MP_ERROR_TEXT("Failed to get framebuffer from RGB LCD panel"));
     }
     self->bufinfo.buf = (uint8_t *)buf;
     self->bufinfo.len = 2 * (panel_config.timings.h_res * panel_config.timings.v_res);
@@ -187,7 +187,11 @@ static mp_obj_t rgbframebuffer_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest)
 
 static mp_obj_t rgbframebuffer_refresh(mp_obj_t self_in){
     rgbframebuffer_obj_t *self = MP_OBJ_TO_PTR(self_in);
+#ifdef CACHE_MAP_L1_DCACHE
+    Cache_WriteBack_Addr(CACHE_MAP_L1_DCACHE, (uint32_t)(self->bufinfo.buf), self->bufinfo.len);
+#else
     Cache_WriteBack_Addr((uint32_t)(self->bufinfo.buf), self->bufinfo.len);
+#endif
     // call a done callback if desired
     return mp_const_none;
 }

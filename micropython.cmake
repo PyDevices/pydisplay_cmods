@@ -18,11 +18,14 @@ if(DEFINED IDF_PATH)
         ${CMOD_DIR}/src/buses/common/common.c
         ${CMOD_DIR}/src/buses/esp32/spibus.c
         ${CMOD_DIR}/src/buses/esp32/i80bus.c
-        ${CMOD_DIR}/src/rgbframebuffer/esp32/rgbframebuffer.c
+        ${CMOD_DIR}/src/buses/esp32/rgbframebuffer.c
+        ${CMOD_DIR}/src/buses/esp32/mipidsi.c
         )
 
     target_include_directories(usermod_pydisplay INTERFACE
         ${IDF_PATH}/components/esp_lcd/include/
+        ${IDF_PATH}/components/esp_lcd/rgb/include/
+        ${IDF_PATH}/components/esp_lcd/dsi/include/
         )
 endif()
 

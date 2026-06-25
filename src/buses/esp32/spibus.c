@@ -101,7 +101,7 @@ static mp_obj_t spibus_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     };
     ret = spi_bus_initialize(spi_host, &buscfg, SPI_DMA_CH_AUTO);
     if (ret != ESP_OK) {
-        mp_raise_msg(&mp_type_OSError, "Failed to create SPIBus.  You must hard reset the board to release the bus.");
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to create SPIBus.  You must hard reset the board to release the bus."));
     }
 
     esp_lcd_panel_io_spi_config_t io_config = {
@@ -123,7 +123,7 @@ static mp_obj_t spibus_make_new(const mp_obj_type_t *type, size_t n_args, size_t
     self->io_handle = NULL;
     ret = esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)spi_host, &io_config, &self->io_handle);
     if (ret != ESP_OK) {
-        mp_raise_msg(&mp_type_OSError, "Failed to create SPI panel IO.");
+        mp_raise_msg(&mp_type_OSError, MP_ERROR_TEXT("Failed to create SPI panel IO."));
     }
 
     return MP_OBJ_FROM_PTR(self);
